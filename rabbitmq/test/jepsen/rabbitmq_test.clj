@@ -13,7 +13,9 @@
             [jepsen.generator :as gen]
             [jepsen.nemesis   :as nemesis]
             [jepsen.store     :as store]
-            [jepsen.report    :as report]))
+            [jepsen.report    :as report]
+        	 [jepsen.cli :as cli]
+            [jepsen.tests :as tests]))
 
 ;(deftest mutex-test
 ;  (let [test (run!
@@ -42,6 +44,9 @@
 ;                                (gen/time-limit 500)))))]
 ;    (is (:valid? (:results test)))
 ;    (report/linearizability (:linear (:results test)))))
+
+
+
 
 (deftest rabbit-test
   (let [test (run!
@@ -75,3 +80,48 @@
                                    (gen/once {:type :invoke
                                               :f    :drain}))))))]
     (is (:valid? (:results test)))))
+
+
+
+(deftest rabbit-test0
+  (let [test (run!
+               (assoc
+                 noop-test
+                 :name       "rabbitmq-simple-partition"
+                 :os         debian/os
+                 :client     (queue-client)
+                 :nemesis    (nemesis/partition-random-halves)
+                 :model      (model/unordered-queue)
+                 :checker    (checker/compose
+                               {:queue       checker/queue
+                                :total-queue checker/total-queue})
+                 :generator  (gen/phases
+                               (->> (gen/queue)
+                                    (gen/delay 1/10)
+                                    (gen/nemesis
+                                      (gen/seq
+                                        (cycle [(gen/sleep 60)
+                                                {:type :info :f :start}
+                                                (gen/sleep 60)
+                                                {:type :info :f :stop}])))
+                                    (gen/time-limit 360))
+                               (gen/nemesis
+                                 (gen/once {:type :info, :f :stop}))
+                               (gen/log "waiting for recovery")
+                               (gen/sleep 60)
+                               (gen/clients
+                                 (gen/each
+                                   (gen/once {:type :invoke
+                                              :f    :drain}))))))]
+    (is (:valid? (:results test)))))
+
+
+
+(defn -main
+  "Handles command line arguments. Can either run a test, or a web server for
+  browsing results."
+  [& args]
+  (cli/run! (cli/single-test-cmd {:test-fn rabbit-test0})
+            args))
+
+
