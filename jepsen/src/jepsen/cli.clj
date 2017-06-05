@@ -12,7 +12,7 @@
             [jepsen.core :as jepsen]
             [jepsen.web :as web]))
 
-(def default-nodes ["n1" "n2" "n3" "n4" "n5"])
+(def default-nodes ["int-rabbitmq00-v3r2.pypes.in" "int-rabbitmq01-v3r2.pypes.in" "int-rabbitmq02-v3r2.pypes.in"])
 
 (defn one-of
   "Takes a collection and returns a string like \"Must be one of ...\" and a

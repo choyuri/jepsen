@@ -4,11 +4,9 @@
   (:use jepsen.control)
   (:require [clojure.string :as str]))
 
-(def hosts-map {:n1 "n1"
-              :n2 "n2"
-              :n3 "n3"
-              :n4 "n4"
-              :n5 "n5"
+(def hosts-map {:n1 "int-rabbitmq00-v3r2.pypes.in"
+              :n2 "int-rabbitmq01-v3r2.pypes.in"
+              :n3 "int-rabbitmq02-v3r2.pypes.in"
               })
 
 (def small-partition-set #{(:n1 hosts-map) (:n2 hosts-map)})

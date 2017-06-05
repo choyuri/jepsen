@@ -121,7 +121,7 @@
   "Handles command line arguments. Can either run a test, or a web server for
   browsing results."
   [& args]
-  (cli/run! (cli/single-test-cmd {:test-fn rabbit-test0})
-            args))
+	(rabbit-test0)	
+)
 
 
